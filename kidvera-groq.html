@@ -554,7 +554,7 @@ Balas HANYA dengan JSON valid, tidak ada teks lain:
 {"ringkasan":"2-3 kalimat profil anak dan fokus program","karakterUtama":"karakter dominan","karakterTambahan":["karakter1","karakter2"],"hari":[{"hari":1,"judul":"max 5 kata","guide":"nama karakter","story":"3 kalimat","kegiatan":"langkah jelas","script_ortu":"kalimat siap pakai + posisi tubuh","jika_nolak":"kalimat jika anak nolak","observasi":"1 hal yang diamati","alat":["benda1"],"durasi":"X-Y menit","motivasi":"kalimat untuk orangtua"},{"hari":2,"judul":"","guide":"","story":"","kegiatan":"","script_ortu":"","jika_nolak":"","observasi":"","alat":[],"durasi":"","motivasi":""},{"hari":3,"judul":"","guide":"","story":"","kegiatan":"","script_ortu":"","jika_nolak":"","observasi":"","alat":[],"durasi":"","motivasi":""},{"hari":4,"judul":"","guide":"","story":"","kegiatan":"","script_ortu":"","jika_nolak":"","observasi":"","alat":[],"durasi":"","motivasi":""},{"hari":5,"judul":"","guide":"","story":"","kegiatan":"","script_ortu":"","jika_nolak":"","observasi":"","alat":[],"durasi":"","motivasi":""},{"hari":6,"judul":"","guide":"","story":"","kegiatan":"","script_ortu":"","jika_nolak":"","observasi":"","alat":[],"durasi":"","motivasi":""},{"hari":7,"judul":"","guide":"","story":"","kegiatan":"","script_ortu":"","jika_nolak":"","observasi":"","alat":[],"durasi":"","motivasi":""}]}`;
 
   try{
-    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    const res=await fetch('https://kidvera-proxy.kidvera-id.workers.dev/',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+APIKEY},
       body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:4000,messages:[{role:'user',content:prompt}]})
@@ -797,7 +797,7 @@ Berikan evaluasi singkat (2-3 kalimat) yang:
 Gunakan bahasa hangat, seperti teman. Jangan kaku.`;
 
     try{
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      const res = await fetch('https://kidvera-proxy.kidvera-id.workers.dev/',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+APIKEY},
         body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:300,messages:[{role:'user',content:evalPrompt}]})
@@ -866,7 +866,7 @@ Tulis analisis singkat (3-4 kalimat) yang:
 Bahasa: hangat, seperti teman dekat, bukan dokter.`;
 
   try{
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    const res = await fetch('https://kidvera-proxy.kidvera-id.workers.dev/',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+APIKEY},
       body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:400,messages:[{role:'user',content:analisisPrompt}]})
