@@ -556,8 +556,8 @@ Balas HANYA dengan JSON valid, tidak ada teks lain:
   try{
     const res=await fetch('https://kidvera-proxy.kidvera-id.workers.dev/',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':APIKEY},
-      body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:4000,messages:[{role:'user',content:prompt}]})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({key:APIKEY,model:'llama-3.3-70b-versatile',max_tokens:4000,messages:[{role:'user',content:prompt}]})
     });
     clearInterval(tmr);
     const data=await res.json();
@@ -799,8 +799,8 @@ Gunakan bahasa hangat, seperti teman. Jangan kaku.`;
     try{
       const res = await fetch('https://kidvera-proxy.kidvera-id.workers.dev/',{
         method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':APIKEY},
-        body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:300,messages:[{role:'user',content:evalPrompt}]})
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({key:APIKEY,model:'llama-3.3-70b-versatile',max_tokens:300,messages:[{role:'user',content:evalPrompt}]})
       });
       const data = await res.json();
       if(data.choices&&data.choices[0]){
@@ -868,8 +868,8 @@ Bahasa: hangat, seperti teman dekat, bukan dokter.`;
   try{
     const res = await fetch('https://kidvera-proxy.kidvera-id.workers.dev/',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':APIKEY},
-      body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:400,messages:[{role:'user',content:analisisPrompt}]})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({key:APIKEY,model:'llama-3.3-70b-versatile',max_tokens:400,messages:[{role:'user',content:analisisPrompt}]})
     });
     const data = await res.json();
     if(data.choices&&data.choices[0]){
