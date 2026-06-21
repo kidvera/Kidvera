@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kidvera — Cek Perkembangan Ananda</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f9f5; color: #333; }
+
+/* LANDING */
+#landing {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px; text-align: center;
+  background: linear-gradient(160deg, #e8f5e9 0%, #e3f2fd 100%);
+}
+.logo { font-size: 38px; font-weight: 900; color: #2E7D32; letter-spacing: -1px; margin-bottom: 6px; }
+.logo span { color: #2980b9; }
+.tagline { font-size: 15px; color: #888; font-style: italic; margin-bottom: 44px; }
+.tagline strong { color: #388E3C; font-style: normal; }
+.pick-label { font-size: 17px; font-weight: 700; color: #2c3e50; margin-bottom: 20px; }
+
+.age-cards { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 320px; }
+.age-card {
+  background: white; border: 2.5px solid #e0e0e0; border-radius: 20px;
+  padding: 22px 28px; cursor: pointer; transition: 0.25s;
+  display: flex; align-items: center; gap: 20px; text-align: left;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+.age-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+.age-card.green:hover { border-color: #4CAF50; }
+.age-card.blue:hover  { border-color: #2980b9; }
+.age-card .emoji { font-size: 36px; flex-shrink: 0; }
+.age-card .age-range { font-size: 20px; font-weight: 800; margin-bottom: 2px; }
+.age-card.green .age-range { color: #2E7D32; }
+.age-card.blue  .age-range { color: #1a5f8a; }
+.age-card .age-desc { font-size: 13px; color: #999; }
+
+/* FORM AREA */
+#formArea { display: none; max-width: 820px; margin: 0 auto; padding: 20px 16px 60px; }
+
+.form-header { text-align: center; padding: 24px 20px 16px; }
+.back-btn {
+  display: inline-block; background: white; border: 1.5px solid #ddd;
+  color: #888; padding: 7px 18px; border-radius: 20px; font-size: 13px;
+  cursor: pointer; margin-bottom: 14px; transition: 0.2s;
+}
+.back-btn:hover { border-color: #4CAF50; color: #2E7D32; }
+.form-title { font-size: 22px; font-weight: 800; color: #2c3e50; margin-bottom: 4px; }
+.form-subtitle { font-size: 14px; color: #999; font-style: italic; }
+
+.info-box {
+  background: white; border-radius: 14px; padding: 16px; margin-bottom: 20px;
+  display: flex; flex-wrap: wrap; gap: 12px;
+  border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.info-field { flex: 1; min-width: 160px; }
+.info-field label { font-size: 12px; font-weight: 700; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
+.info-field input { padding: 10px 12px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 14px; width: 100%; background: #fafafa; transition: 0.2s; }
+.info-field input:focus { outline: none; background: white; }
+
+/* THEMES */
+.theme-green .info-field label { color: #2E7D32; }
+.theme-green .info-field input:focus { border-color: #4CAF50; }
+.theme-green .section { border-color: #e8f5e9; }
+.theme-green .section-title { color: #2E7D32; border-color: #4CAF50; }
+.theme-green .age-label { background: #66BB6A; }
+.theme-green .btn-analisis { background: linear-gradient(135deg,#4CAF50,#2E7D32); }
+.theme-green #resultArea { border-color: #4CAF50; }
+.theme-green .result-header { background: linear-gradient(135deg,#4CAF50,#2E7D32); }
+.theme-green .checklist-item input { accent-color: #4CAF50; }
+
+.theme-blue .info-field label { color: #1a5f8a; }
+.theme-blue .info-field input:focus { border-color: #2980b9; }
+.theme-blue .section { border-color: #dbeaf7; }
+.theme-blue .section-title { color: #1a5f8a; border-color: #2980b9; }
+.theme-blue .age-label { background: #3498db; }
+.theme-blue .btn-analisis { background: linear-gradient(135deg,#3498db,#1a5f8a); }
+.theme-blue #resultArea { border-color: #2980b9; }
+.theme-blue .result-header { background: linear-gradient(135deg,#2980b9,#1a5f8a); }
+.theme-blue .checklist-item input { accent-color: #2980b9; }
+
+/* SECTION & CHECKLIST */
+.section {
+  background: white; border-radius: 14px; padding: 20px;
+  margin-bottom: 14px; border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.section-title { font-size: 16px; font-weight: 800; border-left: 5px solid; padding-left: 10px; margin-bottom: 14px; }
+.age-group { margin-top: 14px; }
+.age-label { font-size: 12px; font-weight: 700; color: #fff; display: inline-block; padding: 3px 12px; border-radius: 20px; margin-bottom: 10px; }
+.checklist-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+.checklist-item:last-child { border-bottom: none; }
+.checklist-item input[type="checkbox"] { margin-top: 3px; width: 17px; height: 17px; cursor: pointer; flex-shrink: 0; }
+.checklist-item label { font-size: 14px; line-height: 1.5; cursor: pointer; }
+
+.btn-analisis { display: block; color: white; border: none; padding: 16px; border-radius: 50px; font-size: 17px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; transition: opacity 0.2s; }
+.btn-analisis:hover { opacity: 0.88; }
+
+/* HASIL */
+#resultArea { display: none; margin-top: 28px; border-radius: 18px; overflow: hidden; border: 2px solid; }
+.result-header { color: white; padding: 18px 20px; text-align: center; }
+.result-body { background: white; padding: 20px; }
+.greeting { font-size: 15px; color: #555; margin-bottom: 20px; text-align: center; line-height: 1.6; }
+.result-box { border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.done-box { background: #e8f5e9; border-left: 6px solid #4CAF50; }
+.todo-box { background: #fff3e0; border-left: 6px solid #ff9800; }
+.box-title { font-weight: bold; font-size: 15px; margin-bottom: 10px; }
+.done-box .box-title { color: #1B5E20; }
+.todo-box .box-title { color: #E65100; }
+.res-item { font-size: 14px; padding: 4px 0 4px 16px; position: relative; color: #444; }
+.res-item::before { content: "•"; position: absolute; left: 4px; font-weight: bold; }
+.done-box .res-item::before { color: #4CAF50; }
+.todo-box .res-item::before { color: #ff9800; }
+
+/* WORKSHEET */
+#worksheetArea { display: none; }
+.ws-header { text-align: center; padding: 14px 20px; background: #fff8e1; border-top: 1px solid #ffe082; }
+.ws-header p { font-size: 14px; color: #5D4037; }
+.ws-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; padding: 16px 20px; background: #fafafa; }
+.ws-card { background: white; border: 1px solid #e8e8e8; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; }
+.ws-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.ws-card-tag { font-size: 11px; font-weight: 800; text-transform: uppercase; color: white; padding: 3px 9px; border-radius: 20px; }
+.ws-card-tag.motorik  { background: #1976D2; }
+.ws-card-tag.kognitif { background: #7B1FA2; }
+.ws-card-tag.bahasa   { background: #00796B; }
+.ws-card-tag.sosial   { background: #F57C00; }
+.ws-card-tag.moral    { background: #C62828; }
+.ws-card-usia { font-size: 11px; color: #bbb; font-weight: 600; }
+.ws-card-title { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 4px; line-height: 1.4; }
+.ws-card-sub { font-size: 11px; color: #bbb; margin-bottom: 10px; }
+.ws-btns { display: flex; flex-direction: column; gap: 6px; margin-top: auto; }
+.btn-free     { background: #4CAF50; color: white; padding: 9px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-decoration: none; text-align: center; display: block; }
+.btn-paid     { background: white; color: #ff9800; border: 2px solid #ff9800; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-decoration: none; text-align: center; display: block; }
+.btn-activity { background: #f0fdf4; color: #2E7D32; border: 1.5px solid #a5d6a7; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-style: italic; text-align: center; display: block; line-height: 1.4; }
+.ws-empty { text-align: center; padding: 24px; color: #bbb; font-size: 14px; }
+
+.lynk-wrap { padding: 18px 20px 24px; background: #fafafa; text-align: center; border-top: 1px solid #eee; }
+.btn-request { display: block; background: white; border: 2px solid #4CAF50; color: #4CAF50; text-align: center; padding: 14px 28px; border-radius: 50px; font-weight: 700; font-size: 15px; text-decoration: none; transition: 0.2s; }
+.btn-request:hover { background: #4CAF50; color: white; }
+.tagline-foot { margin-top: 10px; font-size: 13px; color: #aaa; font-style: italic; }
+.tagline-foot strong { font-style: normal; }
+.theme-green .tagline-foot strong { color: #4CAF50; }
+.theme-blue  .tagline-foot strong { color: #2980b9; }
+.theme-blue  .btn-request { border-color: #2980b9; color: #2980b9; }
+.theme-blue  .btn-request:hover { background: #2980b9; color: white; }
+
+@media(max-width:500px) { .ws-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- LANDING -->
+<div id="landing">
+  <div class="logo">Kid<span>vera</span></div>
+  <p class="tagline">in their own way &mdash; <strong>Belajar Sesuai Fitrah Anak</strong></p>
+  <p class="pick-label">Berapa usia Ananda sekarang?</p>
+  <div class="age-cards">
+    <div class="age-card green" onclick="showForm('green')">
+      <span class="emoji">🌱</span>
+      <div>
+        <div class="age-range">0 – 3 Tahun</div>
+        <div class="age-desc">Bayi &amp; Batita</div>
+      </div>
+    </div>
+    <div class="age-card blue" onclick="showForm('blue')">
+      <span class="emoji">🌟</span>
+      <div>
+        <div class="age-range">4 – 6 Tahun</div>
+        <div class="age-desc">Prasekolah</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORM AREA -->
+<div id="formArea">
+  <div class="form-header">
+    <button class="back-btn" onclick="backToLanding()">&#8592; Ganti Usia</button>
+    <div class="form-title" id="formTitle"></div>
+    <div class="form-subtitle" id="formSubtitle"></div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-field"><label>Nama Anak</label><input type="text" id="childName" placeholder="Nama si Kecil..."></div>
+    <div class="info-field"><label>Nama Ayah/Bunda</label><input type="text" id="parentName" placeholder="Nama orang tua..."></div>
+    <div class="info-field" id="orderField"><label>Anak Ke-</label><input type="number" id="childOrder" placeholder="1, 2, 3..."></div>
+  </div>
+
+  <div id="checklistContainer"></div>
+
+  <button class="btn-analisis" onclick="hasilAnalisis()">Simpan &amp; Lihat Arahan Stimulasi</button>
+
+  <div id="resultArea">
+    <div class="result-header">
+      <h2 style="font-size:18px;margin-bottom:4px;">Hasil Analisis Kidvera</h2>
+      <p style="font-size:13px;opacity:0.9;">Pantau tumbuh kembang Ananda dengan penuh kasih</p>
+    </div>
+    <div class="result-body">
+      <p class="greeting" id="greetingTxt"></p>
+      <div class="result-box done-box">
+        <div class="box-title">&#127775; Hebat, Ananda Sudah Bisa:</div>
+        <div id="resDone"></div>
+        <p style="font-size:13px;color:#388E3C;font-style:italic;margin-top:10px;">MasyaAllah, progres yang luar biasa! Terus beri apresiasi agar Ananda makin semangat bereksplorasi.</p>
+      </div>
+      <div class="result-box todo-box">
+        <div class="box-title">&#128640; Fokus Stimulasi Selanjutnya (PR Bunda):</div>
+        <p style="font-size:13px;color:#666;margin-bottom:8px;">Bunda bisa bantu kuasai poin ini dengan aktivitas main dan worksheet:</p>
+        <div id="resTodo"></div>
+        <p style="font-size:13px;color:#999;margin-top:10px;font-style:italic;">Tenang Bunda, tidak perlu terburu-buru. Pilih satu poin untuk dilatih hari ini.</p>
+      </div>
+      <div id="worksheetArea">
+        <div class="ws-header"><p>&#128161; Materi &amp; worksheet yang cocok untuk PR Ananda:</p></div>
+        <div class="ws-grid" id="wsGrid"></div>
+        <div class="lynk-wrap">
+          <a href="https://bersamarahmaobsever.fillout.com/t/9ESP5gZ9Vdus" target="_blank" class="btn-request">&#9999; Mau request worksheet? Klik ini &mdash; gratis!</a>
+          <p class="tagline-foot">in their own way &mdash; <strong>Belajar Sesuai Fitrah Anak</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var checklists = {
+  green: [
+    { title:"Moral & Nilai Agama", groups:[
+      { label:"0-1 Tahun", items:[
+        {id:"g01",txt:"Bereaksi lagu keagamaan",kat:"moral",usia:"01",desc:"Bereaksi ketika mendengarkan senandung lagu bernuansa keagamaan"},
+        {id:"g02",txt:"Bereaksi saat doa dibacakan",kat:"moral",usia:"01",desc:"Bereaksi ketika mendengar doa yang dibacakan"},
+        {id:"g03",txt:"Bereaksi cerita keagamaan",kat:"moral",usia:"01",desc:"Bereaksi ketika mendengarkan cerita bernuansa keagamaan"},
+        {id:"g04",txt:"Merespon kasih sayang",kat:"moral",usia:"01",desc:"Merespon rasa sayang melalui belaian, sentuhan, dan senyuman"}
+      ]},
+      { label:"1-2 Tahun", items:[
+        {id:"g05",txt:"Belajar doa sebelum makan",kat:"moral",usia:"12",desc:"Mulai mengikuti doa sebelum makan bersama orang tua"},
+        {id:"g06",txt:"Latihan mengucapkan terima kasih",kat:"moral",usia:"12",desc:"Mulai belajar mengucapkan terima kasih"},
+        {id:"g07",txt:"Mulai belajar berbagi",kat:"moral",usia:"12",desc:"Mulai menunjukkan sikap berbagi dengan orang sekitar"}
+      ]},
+      { label:"2-3 Tahun", items:[
+        {id:"g08",txt:"Menyebut nama Tuhan",kat:"moral",usia:"23",desc:"Menyebut nama Tuhan"},
+        {id:"g09",txt:"Mengikuti bacaan doa sebelum/sesudah kegiatan",kat:"moral",usia:"23",desc:"Mengikuti bacaan doa sebelum dan sesudah melakukan kegiatan"},
+        {id:"g10",txt:"Menyanyikan lagu keagamaan",kat:"moral",usia:"23",desc:"Menyanyikan lagu keagamaan"}
+      ]},
+      { label:"3-4 Tahun", items:[
+        {id:"g11",txt:"Berdoa sebelum/sesudah kegiatan secara mandiri",kat:"moral",usia:"34",desc:"Berdoa sebelum dan sesudah kegiatan dengan bantuan minimal"}
+      ]}
+    ]},
+    { title:"Sosial, Emosional & Kemandirian", groups:[
+      { label:"0-1 Tahun", items:[
+        {id:"g12",txt:"Menatap wajah orang yang mengajak bicara",kat:"sosial",usia:"01",desc:"Menatap wajah orang yang mengajak berkomunikasi"},
+        {id:"g13",txt:"Merespon dengan senyum",kat:"sosial",usia:"01",desc:"Merespon dengan senyum terhadap orang yang mengajak berkomunikasi"},
+        {id:"g14",txt:"Komunikasi dengan gerakan tangan",kat:"sosial",usia:"01",desc:"Mulai melakukan komunikasi dengan menggerakan tangan"},
+        {id:"g15",txt:"Mengulurkan tangan untuk diangkat",kat:"sosial",usia:"01",desc:"Mengulurkan tangan untuk diangkat"},
+        {id:"g16",txt:"Bermain cilukba",kat:"sosial",usia:"01",desc:"Menutup muka atau bermain cilukba"}
+      ]},
+      { label:"1-2 Tahun", items:[
+        {id:"g17",txt:"Bermain pura-pura makan/minum",kat:"sosial",usia:"12",desc:"Bermain pura-pura makan atau minum (roleplay)"},
+        {id:"g18",txt:"Memberi makan boneka (empati)",kat:"sosial",usia:"12",desc:"Pura-pura memberi makan boneka atau teman"},
+        {id:"g19",txt:"Mengikuti aktivitas orang tua",kat:"sosial",usia:"12",desc:"Senang mengikuti aktivitas orang tua sehari-hari"}
+      ]},
+      { label:"2-3 Tahun", items:[
+        {id:"g20",txt:"Mulai senang bermain dengan teman",kat:"sosial",usia:"23",desc:"Mulai menunjukkan senang bermain dengan teman"},
+        {id:"g21",txt:"Senang meniru yang dilakukan orang lain",kat:"sosial",usia:"23",desc:"Senang meniru apa yang dilakukan orang lain"},
+        {id:"g22",txt:"Menunjukkan ekspresi emosi yang wajar",kat:"sosial",usia:"23",desc:"Menunjukkan ekspresi emosi yang wajar"}
+      ]},
+      { label:"3-4 Tahun", items:[
+        {id:"g23",txt:"Mengungkapkan keinginan buang air (toilet training)",kat:"sosial",usia:"34",desc:"Mengungkapkan keinginan buang air (toilet training)"},
+        {id:"g24",txt:"Mencuci dan mengeringkan tangan sendiri",kat:"sosial",usia:"34",desc:"Mencuci tangan dan mengeringkan sendiri"}
+      ]}
+    ]},
+    { title:"Bahasa", groups:[
+      { label:"0-1 Tahun", items:[
+        {id:"g25",txt:"Bereaksi terhadap isyarat orang lain",kat:"bahasa",usia:"01",desc:"Bereaksi terhadap isyarat orang lain secara sederhana"},
+        {id:"g26",txt:"Bereaksi terhadap sumber suara",kat:"bahasa",usia:"01",desc:"Bereaksi terhadap sumber suara"},
+        {id:"g27",txt:"Merespon bila dipanggil namanya",kat:"bahasa",usia:"01",desc:"Merespon bila dipanggil namanya"}
+      ]},
+      { label:"2-3 Tahun", items:[
+        {id:"g28",txt:"Mengucapkan kalimat 2-3 kata",kat:"bahasa",usia:"23",desc:"Mengucapkan kalimat dengan 2-3 kata (contoh: Saya mau makan)"},
+        {id:"g29",txt:"Menjawab pertanyaan sederhana",kat:"bahasa",usia:"23",desc:"Menjawab pertanyaan sederhana: apa, siapa, di mana"},
+        {id:"g30",txt:"Meniru dan mengulangi bunyi/kata",kat:"bahasa",usia:"23",desc:"Meniru dan mengulangi bunyi dan atau kata"}
+      ]},
+      { label:"3-4 Tahun", items:[
+        {id:"g31",txt:"Menceritakan kembali pengalaman sederhana",kat:"bahasa",usia:"34",desc:"Menceritakan kembali pengalaman sederhana"}
+      ]}
+    ]},
+    { title:"Kognitif", groups:[
+      { label:"0-1 Tahun", items:[
+        {id:"g32",txt:"Melihat wajah dan benda terdekat",kat:"kognitif",usia:"01",desc:"Melihat wajah orang dan benda-benda terdekat"},
+        {id:"g33",txt:"Mengamati anggota tubuh sendiri",kat:"kognitif",usia:"01",desc:"Mengamati anggota tubuhnya sendiri (tangan, kaki, jari)"},
+        {id:"g34",txt:"Mengamati benda di sekitar",kat:"kognitif",usia:"01",desc:"Mengamati benda di sekitarnya"}
+      ]},
+      { label:"1-2 Tahun", items:[
+        {id:"g35",txt:"Mengenal dan menyebut benda sekitar",kat:"kognitif",usia:"12",desc:"Mengenal dan menyebut nama benda di sekitar"},
+        {id:"g36",txt:"Menunjuk dan mengenal gambar hewan",kat:"kognitif",usia:"12",desc:"Menunjuk dan mengenal gambar hewan sederhana"},
+        {id:"g37",txt:"Meniru gerakan sederhana",kat:"kognitif",usia:"12",desc:"Meniru gerakan sederhana orang di sekitarnya"}
+      ]},
+      { label:"2-3 Tahun", items:[
+        {id:"g38",txt:"Menyebutkan benda di sekitar",kat:"kognitif",usia:"23",desc:"Menyebutkan benda-benda di sekitar"},
+        {id:"g39",txt:"Membedakan warna dasar",kat:"kognitif",usia:"23",desc:"Membedakan warna dasar (merah, kuning, biru)"},
+        {id:"g40",txt:"Memasang puzzle 3 keping",kat:"kognitif",usia:"23",desc:"Memasang puzzle 3 keping"}
+      ]},
+      { label:"3-4 Tahun", items:[
+        {id:"g41",txt:"Mengenal konsep besar-kecil dan banyak-sedikit",kat:"kognitif",usia:"34",desc:"Mengenal konsep besar-kecil dan banyak-sedikit"},
+        {id:"g42",txt:"Mengelompokkan benda berdasarkan warna/bentuk",kat:"kognitif",usia:"34",desc:"Mengelompokkan benda berdasarkan warna atau bentuk"},
+        {id:"g43",txt:"Mulai membilang angka 1-10",kat:"kognitif",usia:"34",desc:"Mulai membilang atau menyebut urutan angka 1-10"}
+      ]}
+    ]},
+    { title:"Fisik & Motorik", groups:[
+      { label:"0-1 Tahun", items:[
+        {id:"g44",txt:"Meraih sebuah benda",kat:"motorik",usia:"01",desc:"Meraih sebuah benda"},
+        {id:"g45",txt:"Melempar benda yang dipegang",kat:"motorik",usia:"01",desc:"Melempar benda yang dipegang"},
+        {id:"g46",txt:"Memainkan jari tangan dan kaki",kat:"motorik",usia:"01",desc:"Memainkan jari-jari tangan dan kaki"}
+      ]},
+      { label:"1-2 Tahun", items:[
+        {id:"g47",txt:"Memasukkan benda ke wadah",kat:"motorik",usia:"12",desc:"Memasukkan bola atau benda kecil ke dalam wadah"},
+        {id:"g48",txt:"Menyusun balok sederhana",kat:"motorik",usia:"12",desc:"Menyusun balok sederhana"},
+        {id:"g49",txt:"Coret-coret bebas",kat:"motorik",usia:"12",desc:"Mulai coret-coret bebas dengan krayon atau pensil"}
+      ]},
+      { label:"2-3 Tahun", items:[
+        {id:"g50",txt:"Meniru gerakan senam sederhana",kat:"motorik",usia:"23",desc:"Meniru gerakan senam sederhana"},
+        {id:"g51",txt:"Berjalan dengan kontrol yang baik",kat:"motorik",usia:"23",desc:"Berjalan dengan kontrol yang baik"},
+        {id:"g52",txt:"Menggulirkan bola dengan satu/dua tangan",kat:"motorik",usia:"23",desc:"Menggulirkan bola dengan satu atau dua tangan"}
+      ]},
+      { label:"3-4 Tahun", items:[
+        {id:"g53",txt:"Menggunting kertas tanpa pola",kat:"motorik",usia:"34",desc:"Menggunting kertas tanpa pola"},
+        {id:"g54",txt:"Meniru garis tegak atau lingkaran",kat:"motorik",usia:"34",desc:"Meniru coretan garis tegak atau lingkaran"},
+        {id:"g55",txt:"Berdiri di atas satu kaki 1-3 detik",kat:"motorik",usia:"34",desc:"Berdiri di atas satu kaki (1-3 detik)"},
+        {id:"g56",txt:"Naik tangga dengan kaki bergantian",kat:"motorik",usia:"34",desc:"Naik tangga dengan kaki bergantian"}
+      ]}
+    ]}
+  ],
+
+  blue: [
+    { title:"Moral & Nilai Agama", groups:[
+      { label:"Usia 4-5 Tahun", items:[
+        {id:"b01",txt:"Mengenal tempat ibadah",kat:"moral",usia:"45",desc:"Mengenal tempat-tempat ibadah"},
+        {id:"b02",txt:"Mengenal hari besar agama",kat:"moral",usia:"45",desc:"Mengenal hari-hari besar agama"},
+        {id:"b03",txt:"Berdoa dengan urutan benar",kat:"moral",usia:"45",desc:"Berdoa sebelum dan sesudah melaksanakan kegiatan secara berurutan"},
+        {id:"b04",txt:"Bernyanyi lagu religi",kat:"moral",usia:"45",desc:"Menyanyi lagu-lagu keagamaan"},
+        {id:"b05",txt:"Mulai terlibat dalam acara keagamaan",kat:"moral",usia:"45",desc:"Mulai terlibat dalam acara keagamaan"}
+      ]},
+      { label:"Usia 5-6 Tahun", items:[
+        {id:"b06",txt:"Mengenal pokok ajaran agama",kat:"moral",usia:"56",desc:"Mengenal pokok ajaran agama"},
+        {id:"b07",txt:"Berdoa sesuai ajaran agama",kat:"moral",usia:"56",desc:"Mampu berdoa sesuai dengan ajaran agama yang dianut"},
+        {id:"b08",txt:"Aktif di kegiatan sosial keagamaan",kat:"moral",usia:"56",desc:"Terlibat dalam kegiatan sosial keagamaan dengan penuh kesadaran"}
+      ]}
+    ]},
+    { title:"Sosial, Emosional & Kemandirian", groups:[
+      { label:"Usia 4-5 Tahun", items:[
+        {id:"b09",txt:"Bermain tanpa membedakan teman",kat:"sosial",usia:"45",desc:"Bersedia bermain dengan teman sebaya tanpa membedakan"},
+        {id:"b10",txt:"Terbiasa memuji teman",kat:"sosial",usia:"45",desc:"Mau memuji teman atau orang lain"},
+        {id:"b11",txt:"Mengajak teman berinteraksi",kat:"sosial",usia:"45",desc:"Mengajak teman untuk bermain atau belajar"},
+        {id:"b12",txt:"Komunikasi aktif dengan orang dewasa",kat:"sosial",usia:"45",desc:"Berkomunikasi dengan orang dewasa saat berkegiatan"},
+        {id:"b13",txt:"Menunjukkan empati pada teman",kat:"sosial",usia:"45",desc:"Berkomunikasi dengan temannya ketika mengalami musibah"}
+      ]},
+      { label:"Usia 5-6 Tahun", items:[
+        {id:"b14",txt:"Ringan tangan menolong teman",kat:"sosial",usia:"56",desc:"Mulai belajar menolong teman yang membutuhkan"},
+        {id:"b15",txt:"Kerja sama dalam kelompok",kat:"sosial",usia:"56",desc:"Mampu bekerja sama dengan teman dalam permainan atau tugas kelompok"},
+        {id:"b16",txt:"Mampu mengelola emosi",kat:"sosial",usia:"56",desc:"Mampu mengatasi emosi dan frustrasi secara lebih baik"},
+        {id:"b17",txt:"Mandiri menjaga kebersihan diri",kat:"sosial",usia:"56",desc:"Lebih mandiri dalam kebersihan diri dan membantu tugas ringan"}
+      ]}
+    ]},
+    { title:"Bahasa", groups:[
+      { label:"Usia 4-5 Tahun", items:[
+        {id:"b18",txt:"Menyebutkan data diri lengkap",kat:"bahasa",usia:"45",desc:"Menyebutkan nama, orang tua, jenis kelamin, alamat lengkap"},
+        {id:"b19",txt:"Bercerita pengalaman dengan runtut",kat:"bahasa",usia:"45",desc:"Menceritakan pengalaman secara sederhana dengan runtut"},
+        {id:"b20",txt:"Bicara kalimat panjang 5-6 kata",kat:"bahasa",usia:"45",desc:"Berbicara lancar dengan kalimat kompleks (5-6 kata)"},
+        {id:"b21",txt:"Tepat menggunakan kata ganti",kat:"bahasa",usia:"45",desc:"Bercerita menggunakan kata ganti aku, kamu, dia, mereka"}
+      ]},
+      { label:"Usia 5-6 Tahun", items:[
+        {id:"b22",txt:"Cerita dengan urutan waktu jelas",kat:"bahasa",usia:"56",desc:"Mampu bercerita dengan urutan waktu yang lebih jelas"},
+        {id:"b23",txt:"Gunakan kata penghubung dengan benar",kat:"bahasa",usia:"56",desc:"Menggunakan kata penghubung dengan benar (tetapi, karena, dll)"}
+      ]}
+    ]},
+    { title:"Kognitif", groups:[
+      { label:"Usia 4-5 Tahun", items:[
+        {id:"b24",txt:"Mengelompokkan benda (warna/bentuk)",kat:"kognitif",usia:"45",desc:"Mengelompokkan benda (warna, bentuk, ukuran)"},
+        {id:"b25",txt:"Membilang angka 1-20",kat:"kognitif",usia:"45",desc:"Membilang atau menyebut urutan bilangan dari 1 sampai 20"},
+        {id:"b26",txt:"Mengenal konsep jumlah benda 1-10",kat:"kognitif",usia:"45",desc:"Mengenal konsep bilangan dengan benda-benda sampai 10"}
+      ]},
+      { label:"Usia 5-6 Tahun", items:[
+        {id:"b27",txt:"Mengenal konsep waktu pagi/siang/malam",kat:"kognitif",usia:"56",desc:"Mengenal konsep waktu sederhana (pagi, siang, malam)"},
+        {id:"b28",txt:"Menghitung benda hingga 30",kat:"kognitif",usia:"56",desc:"Menghitung benda dengan tepat hingga 30"},
+        {id:"b29",txt:"Mengenal pola warna/bentuk",kat:"kognitif",usia:"56",desc:"Mengenal pola sederhana (warna, bentuk)"}
+      ]}
+    ]},
+    { title:"Fisik & Motorik", groups:[
+      { label:"Usia 4-5 Tahun", items:[
+        {id:"b30",txt:"Menggunting mengikuti pola",kat:"motorik",usia:"45",desc:"Menggunting mengikuti pola atau garis sederhana"},
+        {id:"b31",txt:"Melipat kertas sederhana (origami)",kat:"motorik",usia:"45",desc:"Melipat kertas sederhana (origami dasar)"},
+        {id:"b32",txt:"Menulis nama sendiri",kat:"motorik",usia:"45",desc:"Mulai menulis nama sendiri"}
+      ]},
+      { label:"Usia 5-6 Tahun", items:[
+        {id:"b33",txt:"Menggambar objek lengkap",kat:"motorik",usia:"56",desc:"Menggambar objek yang lebih lengkap dan proporsional"},
+        {id:"b34",txt:"Menulis kalimat sederhana",kat:"motorik",usia:"56",desc:"Mulai menulis kalimat sederhana"},
+        {id:"b35",txt:"Jahit kertas / aktivitas fokus halus",kat:"motorik",usia:"56",desc:"Aktivitas motorik halus yang membutuhkan fokus (jahit kertas, dll)"}
+      ]}
+    ]}
+  ]
+};
+
+var wsDB = {
+  green:[
+    {usia:["01"],kat:"motorik", title:"Pegang & Genggam Jari",         sub:"Visual Sheet",           free:"https://drive.google.com/drive/folders/1ZCfa7GmBId_Mvz7P04poxL4-418LAcqH",paid:"",type:"sheet"},
+    {usia:["01"],kat:"motorik", title:"Ambil Mainan Sederhana",         sub:"Panduan Aktivitas",       free:"",paid:"",type:"aktivitas"},
+    {usia:["01"],kat:"motorik", title:"Pindahkan Bola",                 sub:"Visual Sheet",            free:"https://drive.google.com/file/d/1uS1dL3gug29M3OjnxP1yS-sxRlZ37EDd/view?usp=drive_link",paid:"",type:"sheet"},
+    {usia:["01"],kat:"kognitif",title:"Kartu Hitam Putih (Sensori)",    sub:"Visual Card",             free:"https://drive.google.com/file/d/1uS1dL3gug29M3OjnxP1yS-sxRlZ37EDd/view?usp=drive_link",paid:"",type:"sheet"},
+    {usia:["01"],kat:"sosial",  title:"Kartu Ekspresi Wajah",           sub:"Visual Card",             free:"https://drive.google.com/file/d/196s0HS2BhAGKgnWcD4nkWrW_XDoueqBl/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["01"],kat:"sosial",  title:"Latihan Tatap Mata & Senyum",    sub:"Visual",                  free:"https://drive.google.com/file/d/1DbLNX9_XQKLQabsK3Y4VGCRb68iJLr79/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["01"],kat:"moral",   title:"Dengarkan Doa Bersama",          sub:"Checklist",               free:"https://drive.google.com/file/d/1DbLNX9_XQKLQabsK3Y4VGCRb68iJLr79/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["01"],kat:"moral",   title:"Peluk, Senyum & Kasih Sayang",  sub:"Checklist",               free:"https://drive.google.com/file/d/1DbLNX9_XQKLQabsK3Y4VGCRb68iJLr79/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["01"],kat:"moral",   title:"Lagu Religi Sesuai Agama",       sub:"Aktivitas",               free:"",paid:"",type:"aktivitas"},
+    {usia:["12"],kat:"motorik", title:"Masukkan Bola ke Wadah",         sub:"Panduan Aktivitas Video", free:"",paid:"",type:"aktivitas"},
+    {usia:["12"],kat:"motorik", title:"Susun Balok Sederhana",          sub:"Aktivitas",               free:"",paid:"",type:"aktivitas"},
+    {usia:["12"],kat:"motorik", title:"Coret-coret Bebas",              sub:"Aktivitas Pre-writing",   free:"",paid:"",type:"aktivitas"},
+    {usia:["12"],kat:"kognitif",title:"Kenalan dengan Benda Sekitar",   sub:"Visual",                  free:"https://drive.google.com/file/d/1Y-JYts04-4_IB_BMGtNarMeRmUkrt2jE/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["12"],kat:"kognitif",title:"Tunjuk & Kenali Gambar Hewan",  sub:"Visual",                  free:"https://drive.google.com/file/d/1YihqxqEXNNlQmN4QqoWFGmo-3KSv1Yfo/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["12"],kat:"kognitif",title:"Tiru Gerakan Sederhana",         sub:"Visual",                  free:"https://drive.google.com/file/d/1Dww_3mErncsb3RgMxCuLkI2utKf0m6Q8/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["12"],kat:"sosial",  title:"Bermain Pura-pura Makan",        sub:"Aktivitas Roleplay",      free:"",paid:"",type:"aktivitas"},
+    {usia:["12"],kat:"sosial",  title:"Beri Makan Boneka (Empati)",     sub:"Aktivitas",               free:"",paid:"",type:"aktivitas"},
+    {usia:["12"],kat:"sosial",  title:"Ikuti Aktivitas Orang Tua",      sub:"Aktivitas Interaksi",     free:"",paid:"",type:"aktivitas"},
+    {usia:["12"],kat:"moral",   title:"Doa Sebelum Makan",              sub:"Checklist",               free:"https://drive.google.com/file/d/14-pSJNKvTs5kv1gKc5MBkciNuVNo58Y8/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["12"],kat:"moral",   title:"Latihan Terima Kasih",           sub:"Checklist",               free:"https://drive.google.com/file/d/1mAdm6Ks8y-LLcxyo_8Z6CmB1YzK0Hmmr/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["12"],kat:"moral",   title:"Mulai Belajar Berbagi",          sub:"Checklist",               free:"https://drive.google.com/file/d/14-pSJNKvTs5kv1gKc5MBkciNuVNo58Y8/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["23"],kat:"motorik", title:"Masukkan Benda Sesuai Fungsi",   sub:"Panduan Aktivitas Video", free:"",paid:"",type:"aktivitas"},
+    {usia:["23"],kat:"motorik", title:"Susun Balok Bertingkat",         sub:"Aktivitas",               free:"",paid:"",type:"aktivitas"},
+    {usia:["23"],kat:"motorik", title:"Tarik Garis (Pre-Writing)",      sub:"Worksheet",               free:"https://drive.google.com/file/d/1rQa9iFT605EtOPhSFdsPILWnykTdH1Is/view?usp=sharing",paid:"https://drive.google.com/file/d/1OLvpvsVMohcq-1owMDjGF574i3N1wvA7/view?usp=sharing",type:"sheet"},
+    {usia:["23"],kat:"kognitif",title:"Cocokkan Warna",                 sub:"Worksheet",               free:"https://drive.google.com/file/d/1lfg-G85jH36DJtvICMGtRssd23n9vPUB/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["23"],kat:"kognitif",title:"Pilih & Kenali Hewan",           sub:"Worksheet",               free:"https://drive.google.com/file/d/181xXvyX95FLvo9A8jweBDyvBeUxGUOHm/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["23"],kat:"kognitif",title:"Puzzle 3 Keping",                sub:"Worksheet",               free:"https://drive.google.com/file/d/1gIy1pUPuDwBEz6n_T9PPLAsnaybkwuBi/view?usp=sharing",paid:"https://drive.google.com/drive/folders/1BT_lvhDAMXfdtLrwBbTXzpllZg14mblN",type:"sheet"},
+    {usia:["23"],kat:"bahasa",  title:"Ini Apa? (Kosa Kata)",           sub:"Aktivitas + Panduan",     free:"",paid:"",type:"aktivitas"},
+    {usia:["23"],kat:"bahasa",  title:"Tiru Kata (Verbal)",             sub:"Aktivitas",               free:"",paid:"",type:"aktivitas"},
+    {usia:["23"],kat:"bahasa",  title:"Latihan Tanya Jawab",            sub:"Aktivitas",               free:"",paid:"",type:"aktivitas"},
+    {usia:["23"],kat:"sosial",  title:"Cocokkan Ekspresi Emosi",        sub:"Visual Card",             free:"https://drive.google.com/file/d/11tzqT-5K-OatvAepFJowD6Y4s-78ot5X/view?usp=sharing",paid:"https://drive.google.com/file/d/1Nd02gFGnnvzg-klYVGpSRz-opLklndkG/view?usp=sharing",type:"sheet"},
+    {usia:["23"],kat:"sosial",  title:"Bermain Peran Bersama",          sub:"Aktivitas Roleplay",      free:"",paid:"",type:"aktivitas"},
+    {usia:["23"],kat:"sosial",  title:"Aktivitas Bersama Teman",        sub:"Aktivitas Interaksi",     free:"",paid:"",type:"aktivitas"},
+    {usia:["23"],kat:"moral",   title:"Tebalkan Tulisan Doa",           sub:"Visual Card + Aktivitas", free:"",paid:"",type:"aktivitas"},
+    {usia:["23"],kat:"moral",   title:"Urutan Doa Makan",               sub:"Worksheet",               free:"https://drive.google.com/file/d/1TdUQqIzGc4uds8DmJkvLR7PpUVG6_VH4/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["23"],kat:"moral",   title:"Pilih Sikap yang Baik",          sub:"Visual Card",             free:"https://drive.google.com/file/d/1VG9Lc_tTv63Vo15A7BpIkkbEndm5JRhK/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["34"],kat:"motorik", title:"Gunting Garis",                  sub:"Worksheet",               free:"https://drive.google.com/file/d/1BNhPNIhQNUF0Zoz_YDx7urmV-JVTInYP/view?usp=sharing",paid:"https://drive.google.com/file/d/1fnaE3nL1yI3-4XRYk-Mp_6tlDLkVl-Tk/view?usp=sharing",type:"sheet"},
+    {usia:["34"],kat:"motorik", title:"Tebalkan Bentuk Dasar",          sub:"Worksheet",               free:"https://drive.google.com/file/d/1QKebLthE4IHxGvNM8ymNV-36iKRZJQNQ/view?usp=sharing",paid:"https://drive.google.com/file/d/1sWAzG4_WFE0K2tn6wfasypS7cxDIVqaq/view?usp=sharing",type:"sheet"},
+    {usia:["34"],kat:"motorik", title:"Gambar Simpel Kreatif",          sub:"Worksheet",               free:"https://drive.google.com/file/d/1yDw53w_EYmxC3zM60iVK7fkgpq-31g6p/view?usp=sharing",paid:"https://drive.google.com/file/d/1cUkMxtEGeuwYsgIyaMxmtb_2Ch6amlv-/view?usp=sharing",type:"sheet"},
+    {usia:["34"],kat:"kognitif",title:"Urutkan Gambar (Logika)",        sub:"Worksheet",               free:"https://drive.google.com/file/d/1SNJYauIv8W-Ufbvlsbd5EDPWH4fCgCCP/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["34"],kat:"kognitif",title:"Hitung 1-10 dengan Benda",       sub:"Worksheet",               free:"https://drive.google.com/file/d/1F3hOTBQOUe83APage0-O5su6Gty2GpQa/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["34"],kat:"kognitif",title:"Pola Simpel (Pattern)",          sub:"Worksheet",               free:"https://drive.google.com/file/d/1FeONTnWIUCyQnDacjEIRUlVt4AzpVd8e/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["34"],kat:"bahasa",  title:"Cerita dari Gambar",             sub:"Aktivitas - Baca Buku",   free:"https://drive.google.com/drive/folders/1ZCfa7GmBId_Mvz7P04poxL4-418LAcqH?usp=sharing",paid:"",type:"sheet"},
+    {usia:["34"],kat:"bahasa",  title:"Lengkapi Kata (Kosa Kata)",      sub:"Aktivitas - Buku",        free:"",paid:"",type:"aktivitas"},
+    {usia:["34"],kat:"bahasa",  title:"Latihan Tanya Jawab Mandiri",    sub:"Aktivitas - Buku",        free:"",paid:"",type:"aktivitas"},
+    {usia:["34"],kat:"sosial",  title:"Pilih Sikap yang Baik",          sub:"Visual Sheet",            free:"https://drive.google.com/file/d/1b_vITD-NZ8y-tfRj0Ecrsu1jjTe1o6Oa/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["34"],kat:"sosial",  title:"Cocokkan Emosi",                 sub:"Aktivitas Visual",        free:"",paid:"",type:"aktivitas"},
+    {usia:["34"],kat:"sosial",  title:"Solusi Masalah Sederhana",       sub:"Aktivitas",               free:"",paid:"",type:"aktivitas"},
+    {usia:["34"],kat:"moral",   title:"Urutan Doa Harian",              sub:"Visual Card + Aktivitas", free:"",paid:"",type:"aktivitas"},
+    {usia:["34"],kat:"moral",   title:"Warnai Doa Harian",              sub:"Visual Card",             free:"https://drive.google.com/file/d/1xsI1J5kw48lMsqcyqeB_31fjL_ip4JPa/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["34"],kat:"moral",   title:"Pilih Sikap Terpuji",            sub:"Visual Card",             free:"https://drive.google.com/file/d/1Fj61__WL-NUP4_adbAUodIUxvj8dkutw/view?usp=sharing",paid:"",type:"sheet"}
+  ],
+  blue:[
+    {usia:["45"],kat:"motorik", title:"Gunting Mengikuti Pola",          sub:"Worksheet",              free:"https://drive.google.com/file/d/1zZ5iEWhOyUHsWw7lEvbwPxW_WXjZohsI/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["45"],kat:"motorik", title:"Panduan Melipat Kertas (Origami)",sub:"Panduan Video",          free:"https://www.origamilibrary.com/",paid:"",type:"sheet"},
+    {usia:["45"],kat:"motorik", title:"Menulis Nama Sendiri",            sub:"Worksheet",              free:"https://drive.google.com/file/d/1XHpf2VIID273EIq8dpF6LRnlHwdrHzv4/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["45"],kat:"kognitif",title:"Hitung 1-20 dengan Benda",        sub:"Worksheet",              free:"https://drive.google.com/file/d/18-DqCuf_bRx9znyQ_Dqv7_x3KLFyxYO9/view?usp=sharing",paid:"https://drive.google.com/file/d/19h5pR8qsPHWt759GAcmcD_se9GIAhs2W/view?usp=drive_link",type:"sheet"},
+    {usia:["45"],kat:"kognitif",title:"Kelompokkan Benda (Warna & Bentuk)",sub:"Worksheet",           free:"https://drive.google.com/file/d/1lWRNR1nGG9uCJ1fz4_vyzkbN_HV71w3n/view?usp=sharing",paid:"https://drive.google.com/file/d/1uwf3kaIJOxmDlG2tmObM5I2G5cznF3JM/view?usp=sharing",type:"sheet"},
+    {usia:["45"],kat:"kognitif",title:"Labirin Simpel",                  sub:"Worksheet",              free:"https://drive.google.com/file/d/1oQOgPUBn95TuOD0xC1qWBVfqvogfETKU/view?usp=drive_link",paid:"https://drive.google.com/file/d/17yIPT4dX8A50bjbp4v7r7jAOfdj5D4zb/view?usp=sharing",type:"sheet"},
+    {usia:["45"],kat:"kognitif",title:"Pola Lanjutan (Pattern)",         sub:"Worksheet",              free:"https://drive.google.com/file/d/1cI0_FSYLqYgqiuDPlVgQJIzZ8k2ZDfnE/view?usp=sharing",paid:"https://drive.google.com/file/d/1JRAvDiytTsd5OIQ0ntF0GKvsDET-vbRE/view?usp=sharing",type:"sheet"},
+    {usia:["45"],kat:"bahasa",  title:"Bercerita Runtut",                sub:"Worksheet + Aktivitas",  free:"",paid:"",type:"aktivitas"},
+    {usia:["45"],kat:"bahasa",  title:"Kenalan dengan Huruf",            sub:"Worksheet",              free:"https://drive.google.com/file/d/1IxDncgyOyLBFyCjblaHbEhR7FWebn2Gi/view?usp=sharing",paid:"https://drive.google.com/drive/folders/189eXFMGNnsApM_gJJdNj3oaP5BBUMpbq",type:"sheet"},
+    {usia:["45"],kat:"bahasa",  title:"Kartu Suku Kata",                 sub:"Visual Card",            free:"https://drive.google.com/file/d/1q5yb9i2YVvYiXlnUDNAdk1dC8kHQPKSk/view?usp=sharing",paid:"https://drive.google.com/file/d/1r53pSFOXqGnFWcbOP8_0QaD7QffqDJuH/view?usp=drive_link",type:"sheet"},
+    {usia:["45"],kat:"sosial",  title:"Latihan Antri & Sabar",           sub:"Aktivitas Kedisiplinan", free:"",paid:"",type:"aktivitas"},
+    {usia:["45"],kat:"sosial",  title:"Kerja Sama dalam Kelompok",       sub:"Aktivitas Kolaborasi",   free:"",paid:"",type:"aktivitas"},
+    {usia:["45"],kat:"sosial",  title:"Pahami Aturan Bersama",           sub:"Aktivitas Norma",        free:"",paid:"",type:"aktivitas"},
+    {usia:["45"],kat:"moral",   title:"Doa Harian Bersama",              sub:"Aktivitas",              free:"",paid:"",type:"aktivitas"},
+    {usia:["45"],kat:"moral",   title:"Kisah Nabi (Cerita Moral)",       sub:"Aktivitas Cerita",       free:"",paid:"",type:"aktivitas"},
+    {usia:["45"],kat:"moral",   title:"Bantu Teman (Akhlak Mulia)",      sub:"Aktivitas",              free:"",paid:"",type:"aktivitas"},
+    {usia:["56"],kat:"motorik", title:"Gambar Objek Lengkap",            sub:"Worksheet",              free:"https://drive.google.com/file/d/1qb3dQjk6yS431TbqcPsOt2LPHyyWUw6z/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["56"],kat:"motorik", title:"Tulis Kalimat Sederhana",         sub:"Worksheet",              free:"https://drive.google.com/file/d/1Zmy2wa9e7-tbr27Yu4G2EalkdjzrqVBs/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["56"],kat:"motorik", title:"Jahit Kertas (Fokus Halus)",      sub:"Aktivitas",              free:"",paid:"",type:"aktivitas"},
+    {usia:["56"],kat:"kognitif",title:"Tambah & Kurang Dasar",           sub:"Worksheet",              free:"https://drive.google.com/file/d/1Qxfwunsd6mV6onTfDewV1irR_bT8dYZj/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["56"],kat:"kognitif",title:"Mengenal Jam & Waktu",            sub:"Worksheet",              free:"https://drive.google.com/file/d/1blP_3gaLNz2QzgM1hKegzkAkUK6bMbVg/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["56"],kat:"kognitif",title:"Puzzle Rumit (Problem Solving)",  sub:"Worksheet",              free:"https://drive.google.com/file/d/1JmNMkV6DcEMZa-Aw-EZGzm1skmQMmJrD/view?usp=sharing",paid:"https://drive.google.com/drive/folders/1BT_lvhDAMXfdtLrwBbTXzpllZg14mblN",type:"sheet"},
+    {usia:["56"],kat:"bahasa",  title:"Baca Lancar",                     sub:"Aktivitas Membaca",      free:"",paid:"",type:"aktivitas"},
+    {usia:["56"],kat:"bahasa",  title:"Tulis & Cerita Bebas",            sub:"Worksheet",              free:"https://drive.google.com/file/d/1Eh6Kh6S6nlcd6EXWIdeZmHJBBjvgv1ro/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["56"],kat:"bahasa",  title:"Pahami Instruksi (Menyimak)",     sub:"Aktivitas",              free:"",paid:"",type:"aktivitas"},
+    {usia:["56"],kat:"sosial",  title:"Pimpin Kelompok Kecil",           sub:"Aktivitas Leadership",   free:"",paid:"",type:"aktivitas"},
+    {usia:["56"],kat:"sosial",  title:"Tenggang Rasa & Empati",          sub:"Aktivitas",              free:"",paid:"",type:"aktivitas"},
+    {usia:["56"],kat:"sosial",  title:"Ekspresi Emosi yang Wajar",       sub:"Worksheet",              free:"https://drive.google.com/file/d/132a3RWnVl5jN3YF1rf5l8vh6FG186dJN/view?usp=sharing",paid:"",type:"sheet"},
+    {usia:["56"],kat:"moral",   title:"Hafal Surah Pendek",              sub:"Aktivitas",              free:"",paid:"",type:"aktivitas"},
+    {usia:["56"],kat:"moral",   title:"Kebiasaan Ibadah Harian",         sub:"Aktivitas",              free:"",paid:"",type:"aktivitas"},
+    {usia:["56"],kat:"moral",   title:"Jujur & Tanggung Jawab",          sub:"Aktivitas Karakter",     free:"",paid:"",type:"aktivitas"}
+  ]
+};
+
+var usiaLabelMap = {
+  "01":"0-1 Thn","12":"1-2 Thn","23":"2-3 Thn","34":"3-4 Thn","45":"4-5 Thn","56":"5-6 Thn"
+};
+var katLabelMap = {
+  motorik:"Motorik",kognitif:"Kognitif",bahasa:"Bahasa",sosial:"Sosial",moral:"Moral & Agama"
+};
+
+var currentTheme = "green";
+
+function showForm(theme) {
+  currentTheme = theme;
+  document.getElementById("landing").style.display = "none";
+  var fa = document.getElementById("formArea");
+  fa.style.display = "block";
+  fa.className = "theme-" + theme;
+
+  if (theme === "green") {
+    document.getElementById("formTitle").textContent  = "Perkembangan Anak 0-3 Tahun";
+    document.getElementById("formSubtitle").textContent = "Tumbuh sesuai fitrahnya bersama Kidvera";
+    document.getElementById("orderField").style.display = "block";
+  } else {
+    document.getElementById("formTitle").textContent  = "Cek Progres Ananda (4-6 Tahun)";
+    document.getElementById("formSubtitle").textContent = "Tumbuh sesuai fitrahnya bersama Kidvera";
+    document.getElementById("orderField").style.display = "none";
+  }
+
+  document.getElementById("resultArea").style.display = "none";
+  document.getElementById("worksheetArea").style.display = "none";
+  document.getElementById("resDone").innerHTML = "";
+  document.getElementById("resTodo").innerHTML = "";
+  document.getElementById("childName").value = "";
+  document.getElementById("parentName").value = "";
+
+  var container = document.getElementById("checklistContainer");
+  container.innerHTML = "";
+  var data = checklists[theme];
+  data.forEach(function(section) {
+    var sec = document.createElement("div");
+    sec.className = "section";
+    var html = '<div class="section-title">' + section.title + '</div>';
+    section.groups.forEach(function(grp) {
+      html += '<div class="age-group"><span class="age-label">' + grp.label + '</span>';
+      grp.items.forEach(function(it) {
+        html += '<div class="checklist-item"><input type="checkbox" class="task" id="' + it.id + '" data-txt="' + it.txt + '" data-kat="' + it.kat + '" data-usia="' + it.usia + '"><label for="' + it.id + '">' + it.desc + '</label></div>';
+      });
+      html += '</div>';
+    });
+    sec.innerHTML = html;
+    container.appendChild(sec);
+  });
+
+  fa.scrollIntoView({ behavior: "smooth" });
+}
+
+function backToLanding() {
+  document.getElementById("formArea").style.display = "none";
+  document.getElementById("landing").style.display = "flex";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function hasilAnalisis() {
+  var childName  = document.getElementById("childName").value  || "Ananda";
+  var parentName = document.getElementById("parentName").value || "Bunda";
+  var tasks = document.querySelectorAll(".task");
+
+  document.getElementById("greetingTxt").innerHTML =
+    "Halo Bunda <b>" + parentName + "</b>, senang sekali melihat semangat Bunda menemani tumbuh kembang <b>" + childName + "</b>! Berikut rangkuman progres Ananda:";
+
+  var resDone = document.getElementById("resDone");
+  var resTodo = document.getElementById("resTodo");
+  resDone.innerHTML = "";
+  resTodo.innerHTML = "";
+  var todoKat  = {};
+  var todoUsia = {};
+
+  tasks.forEach(function(t) {
+    var div = document.createElement("div");
+    div.className = "res-item";
+    div.innerText = t.getAttribute("data-txt");
+    if (t.checked) {
+      resDone.appendChild(div);
+    } else {
+      resTodo.appendChild(div);
+      todoKat[t.getAttribute("data-kat")]   = true;
+      todoUsia[t.getAttribute("data-usia")] = true;
+    }
+  });
+
+  if (resDone.innerHTML === "") {
+    resDone.innerHTML = '<div class="res-item">Belum ada yang dicentang, yuk mulai dari yang paling mudah!</div>';
+  }
+
+  buildWorksheets(todoKat, todoUsia);
+
+  var area = document.getElementById("resultArea");
+  area.style.display = "block";
+  area.scrollIntoView({ behavior: "smooth" });
+}
+
+function buildWorksheets(todoKat, todoUsia) {
+  var grid = document.getElementById("wsGrid");
+  grid.innerHTML = "";
+  document.getElementById("worksheetArea").style.display = "block";
+
+  var pool = wsDB[currentTheme];
+  var matched = pool.filter(function(ws) {
+    var usiaMatch = ws.usia.some(function(u) { return todoUsia[u]; });
+    var katMatch  = todoKat[ws.kat];
+    return usiaMatch && katMatch;
+  });
+
+  if (matched.length === 0) {
+    grid.innerHTML = '<div class="ws-empty">MasyaAllah, semua sudah dikuasai! Ananda luar biasa!</div>';
+    return;
+  }
+
+  matched.forEach(function(ws) {
+    var card = document.createElement("div");
+    card.className = "ws-card";
+    var usiaTag = ws.usia.map(function(u) { return usiaLabelMap[u] || u; }).join(", ");
+    var btns = "";
+    if (ws.type === "aktivitas") {
+      btns = '<span class="btn-activity">&#128204; Aktivitas langsung &mdash; bisa dipraktikkan bersama ananda</span>';
+    } else {
+      if (ws.free && ws.free.indexOf("http") === 0) {
+        btns += '<a href="' + ws.free + '" target="_blank" class="btn-free">&#11015; Download Gratis</a>';
+      }
+      if (ws.paid && ws.paid.indexOf("http") === 0) {
+        btns += '<a href="' + ws.paid + '" target="_blank" class="btn-paid">&#11088; Versi Lengkap</a>';
+      }
+      if (!btns) {
+        btns = '<span class="btn-activity">&#128204; Aktivitas langsung &mdash; bisa dipraktikkan bersama ananda</span>';
+      }
+    }
+    card.innerHTML =
+      '<div class="ws-card-top"><span class="ws-card-tag ' + ws.kat + '">' + (katLabelMap[ws.kat] || ws.kat) + '</span><span class="ws-card-usia">' + usiaTag + '</span></div>' +
+      '<div class="ws-card-title">' + ws.title + '</div>' +
+      '<div class="ws-card-sub">' + ws.sub + '</div>' +
+      '<div class="ws-btns">' + btns + '</div>';
+    grid.appendChild(card);
+  });
+}
+</script>
+</body>
+</html>
